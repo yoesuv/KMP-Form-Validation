@@ -1,9 +1,13 @@
 package com.yoesuv.kmpformvalidation.feature.login
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.SharingStarted
 import com.yoesuv.kmpformvalidation.utils.validation.ValidationModel
 import com.yoesuv.kmpformvalidation.utils.validation.validateEmail
 import com.yoesuv.kmpformvalidation.utils.validation.validatePassword
@@ -41,6 +45,23 @@ class LoginViewModel : ViewModel() {
     // Loading state for login button
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+    
+    // Computed property to check if form is valid (both email and password are valid and not empty)
+    val isFormValid: StateFlow<Boolean> = combine(
+        _email,
+        _password,
+        _emailValidation,
+        _passwordValidation
+    ) { email, password, emailValidation, passwordValidation ->
+        email.isNotEmpty() && 
+        password.isNotEmpty() && 
+        emailValidation.isValid && 
+        passwordValidation.isValid
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = false
+    )
     
     /**
      * Update email value and validate it

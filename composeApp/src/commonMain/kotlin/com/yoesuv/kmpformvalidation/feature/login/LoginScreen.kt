@@ -54,6 +54,7 @@ fun LoginScreen(
     val showEmailError by viewModel.showEmailError.collectAsState()
     val showPasswordError by viewModel.showPasswordError.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val isFormValid by viewModel.isFormValid.collectAsState()
 
     // Get string resources once in the Composable context
     val emailRequiredMessage = stringResource(Res.string.email_required)
@@ -121,7 +122,8 @@ fun LoginScreen(
                         viewModel.login(emailRequiredMessage, emailInvalidMessage, passwordRequiredMessage, passwordTooShortMessage)
                     },
                     fillMaxWidth = true,
-                    isLoading = isLoading
+                    isLoading = isLoading,
+                    enabled = isFormValid && !isLoading
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
