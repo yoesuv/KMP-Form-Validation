@@ -14,16 +14,15 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.yoesuv.kmpformvalidation.feature.components.AppButton
 import com.yoesuv.kmpformvalidation.feature.components.AppPasswordField
 import com.yoesuv.kmpformvalidation.feature.components.AppTextField
@@ -32,6 +31,8 @@ import kmpformvalidation.composeapp.generated.resources.create_account_link
 import kmpformvalidation.composeapp.generated.resources.dont_have_account
 import kmpformvalidation.composeapp.generated.resources.email_label
 import kmpformvalidation.composeapp.generated.resources.email_placeholder
+import kmpformvalidation.composeapp.generated.resources.email_required
+import kmpformvalidation.composeapp.generated.resources.email_invalid_format
 import kmpformvalidation.composeapp.generated.resources.login_button
 import kmpformvalidation.composeapp.generated.resources.login_title
 import kmpformvalidation.composeapp.generated.resources.password_label
@@ -40,11 +41,20 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun LoginScreen(
-    onNavigateToRegister: () -> Unit = {}
+    onNavigateToRegister: () -> Unit = {},
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    
+    val viewModel = viewModel { LoginViewModel() }
+    // Collect state from ViewModel
+    val email by viewModel.email.collectAsState()
+    val password by viewModel.password.collectAsState()
+    val emailValidation by viewModel.emailValidation.collectAsState()
+    val showEmailError by viewModel.showEmailError.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+
+    // Get string resources once in the Composable context
+    val emailRequiredMessage = stringResource(Res.string.email_required)
+    val emailInvalidMessage = stringResource(Res.string.email_invalid_format)
+
     Scaffold { paddingValues ->
         Box(
             modifier = Modifier
@@ -55,69 +65,74 @@ fun LoginScreen(
             Column(
                 modifier = Modifier
                     .widthIn(max = 400.dp)
-                    .padding(horizontal = 24.dp),
+                    .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                // Login Title
+                // Title
                 Text(
                     text = stringResource(Res.string.login_title),
                     style = MaterialTheme.typography.headlineLarge,
                     fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurface
+                    textAlign = TextAlign.Center
                 )
-                
+
                 Spacer(modifier = Modifier.height(32.dp))
-                
-                // Email Field
+
+                // Email Field with Validation
                 AppTextField(
                     value = email,
-                    onValueChange = { email = it },
+                    onValueChange = { newEmail ->
+                        viewModel.updateEmail(newEmail, emailRequiredMessage, emailInvalidMessage)
+                    },
                     label = stringResource(Res.string.email_label),
                     placeholder = stringResource(Res.string.email_placeholder),
-                    keyboardType = KeyboardType.Email
+                    keyboardType = KeyboardType.Email,
+                    isError = showEmailError,
+                    errorMessage = if (showEmailError) emailValidation.message else null
                 )
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
+
                 // Password Field
                 AppPasswordField(
                     value = password,
-                    onValueChange = { password = it },
+                    onValueChange = { newPassword ->
+                        viewModel.updatePassword(newPassword)
+                    },
                     label = stringResource(Res.string.password_label),
                     placeholder = stringResource(Res.string.password_placeholder)
                 )
-                
+
                 Spacer(modifier = Modifier.height(24.dp))
-                
+
                 // Login Button
                 AppButton(
                     text = stringResource(Res.string.login_button),
                     onClick = {
-                        // TODO: Implement login functionality
-                    }
+                        viewModel.login(emailRequiredMessage, emailInvalidMessage)
+                    },
+                    fillMaxWidth = true,
+                    isLoading = isLoading
                 )
-                
+
                 Spacer(modifier = Modifier.height(16.dp))
-                
-                // Navigate to Register
+
+                // Navigation to Register
                 Row(
+                    horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = stringResource(Res.string.dont_have_account),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface
+                        style = MaterialTheme.typography.bodyMedium
                     )
-                    
                     TextButton(
                         onClick = onNavigateToRegister
                     ) {
                         Text(
                             text = stringResource(Res.string.create_account_link),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = FontWeight.Medium
+                            style = MaterialTheme.typography.bodyMedium
                         )
                     }
                 }

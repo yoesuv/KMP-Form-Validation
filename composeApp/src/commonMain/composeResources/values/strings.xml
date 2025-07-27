@@ -19,4 +19,8 @@
     <string name="register_button">Create Account</string>
     <string name="already_have_account">Already have an account?</string>
     <string name="login_link">Login</string>
+    
+    <!-- Validation Messages -->
+    <string name="email_required">Email is required</string>
+    <string name="email_invalid_format">Email format is not valid</string>
 </resources>
