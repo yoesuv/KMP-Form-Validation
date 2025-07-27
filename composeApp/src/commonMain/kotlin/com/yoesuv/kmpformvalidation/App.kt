@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.yoesuv.kmpformvalidation.core.route.AppRoute
+import com.yoesuv.kmpformvalidation.core.theme.AppColor
 import com.yoesuv.kmpformvalidation.feature.login.LoginScreen
 import com.yoesuv.kmpformvalidation.feature.register.RegisterScreen
 import org.jetbrains.compose.ui.tooling.preview.Preview
@@ -13,7 +14,11 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 @Composable
 @Preview
 fun App() {
-    MaterialTheme {
+    MaterialTheme(
+        colorScheme = MaterialTheme.colorScheme.copy(
+            background = AppColor.Winter
+        ),
+    ) {
         val navController = rememberNavController()
 
         NavHost(
