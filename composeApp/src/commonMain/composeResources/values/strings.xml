@@ -23,4 +23,6 @@
     <!-- Validation Messages -->
     <string name="email_required">Email is required</string>
     <string name="email_invalid_format">Email format is not valid</string>
+    <string name="password_required">Password is required</string>
+    <string name="password_too_short">Password must be at least 5 characters</string>
 </resources>

@@ -37,6 +37,8 @@ import kmpformvalidation.composeapp.generated.resources.login_button
 import kmpformvalidation.composeapp.generated.resources.login_title
 import kmpformvalidation.composeapp.generated.resources.password_label
 import kmpformvalidation.composeapp.generated.resources.password_placeholder
+import kmpformvalidation.composeapp.generated.resources.password_required
+import kmpformvalidation.composeapp.generated.resources.password_too_short
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -48,12 +50,16 @@ fun LoginScreen(
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
     val emailValidation by viewModel.emailValidation.collectAsState()
+    val passwordValidation by viewModel.passwordValidation.collectAsState()
     val showEmailError by viewModel.showEmailError.collectAsState()
+    val showPasswordError by viewModel.showPasswordError.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
 
     // Get string resources once in the Composable context
     val emailRequiredMessage = stringResource(Res.string.email_required)
     val emailInvalidMessage = stringResource(Res.string.email_invalid_format)
+    val passwordRequiredMessage = stringResource(Res.string.password_required)
+    val passwordTooShortMessage = stringResource(Res.string.password_too_short)
 
     Scaffold { paddingValues ->
         Box(
@@ -98,10 +104,12 @@ fun LoginScreen(
                 AppPasswordField(
                     value = password,
                     onValueChange = { newPassword ->
-                        viewModel.updatePassword(newPassword)
+                        viewModel.updatePassword(newPassword, passwordRequiredMessage, passwordTooShortMessage)
                     },
                     label = stringResource(Res.string.password_label),
-                    placeholder = stringResource(Res.string.password_placeholder)
+                    placeholder = stringResource(Res.string.password_placeholder),
+                    isError = showPasswordError,
+                    errorMessage = if (showPasswordError) passwordValidation.message else null
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -110,7 +118,7 @@ fun LoginScreen(
                 AppButton(
                     text = stringResource(Res.string.login_button),
                     onClick = {
-                        viewModel.login(emailRequiredMessage, emailInvalidMessage)
+                        viewModel.login(emailRequiredMessage, emailInvalidMessage, passwordRequiredMessage, passwordTooShortMessage)
                     },
                     fillMaxWidth = true,
                     isLoading = isLoading
