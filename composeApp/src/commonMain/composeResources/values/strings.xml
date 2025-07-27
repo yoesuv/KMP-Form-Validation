@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Login Screen -->
+    <string name="login_title">Login</string>
+    <string name="email_label">Email</string>
+    <string name="email_placeholder">Enter your email</string>
+    <string name="password_label">Password</string>
+    <string name="password_placeholder">Enter your password</string>
+    <string name="login_button">Login</string>
+</resources>
