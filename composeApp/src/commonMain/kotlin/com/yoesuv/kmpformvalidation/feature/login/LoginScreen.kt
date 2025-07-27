@@ -3,6 +3,7 @@ package com.yoesuv.kmpformvalidation.feature.login
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +28,8 @@ import com.yoesuv.kmpformvalidation.feature.components.AppButton
 import com.yoesuv.kmpformvalidation.feature.components.AppPasswordField
 import com.yoesuv.kmpformvalidation.feature.components.AppTextField
 import kmpformvalidation.composeapp.generated.resources.Res
+import kmpformvalidation.composeapp.generated.resources.create_account_link
+import kmpformvalidation.composeapp.generated.resources.dont_have_account
 import kmpformvalidation.composeapp.generated.resources.email_label
 import kmpformvalidation.composeapp.generated.resources.email_placeholder
 import kmpformvalidation.composeapp.generated.resources.login_button
@@ -35,7 +39,9 @@ import kmpformvalidation.composeapp.generated.resources.password_placeholder
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    onNavigateToRegister: () -> Unit = {}
+) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     
@@ -92,6 +98,29 @@ fun LoginScreen() {
                         // TODO: Implement login functionality
                     }
                 )
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                // Navigate to Register
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = stringResource(Res.string.dont_have_account),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    
+                    TextButton(
+                        onClick = onNavigateToRegister
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.create_account_link),
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
             }
         }
     }

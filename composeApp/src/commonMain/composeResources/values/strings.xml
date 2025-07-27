@@ -7,6 +7,8 @@
     <string name="password_label">Password</string>
     <string name="password_placeholder">Enter your password</string>
     <string name="login_button">Login</string>
+    <string name="dont_have_account">Don't have an account?</string>
+    <string name="create_account_link">Create Account</string>
     
     <!-- Register Screen -->
     <string name="register_title">Create Account</string>
@@ -15,4 +17,6 @@
     <string name="confirm_password_label">Confirm Password</string>
     <string name="confirm_password_placeholder">Confirm your password</string>
     <string name="register_button">Create Account</string>
+    <string name="already_have_account">Already have an account?</string>
+    <string name="login_link">Login</string>
 </resources>
