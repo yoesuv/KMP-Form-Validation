@@ -1,4 +1,4 @@
-package com.yoesuv.kmpformvalidation.feature
+package com.yoesuv.kmpformvalidation.feature.login
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

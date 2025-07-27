@@ -7,4 +7,12 @@
     <string name="password_label">Password</string>
     <string name="password_placeholder">Enter your password</string>
     <string name="login_button">Login</string>
+    
+    <!-- Register Screen -->
+    <string name="register_title">Create Account</string>
+    <string name="full_name_label">Full Name</string>
+    <string name="full_name_placeholder">Enter your full name</string>
+    <string name="confirm_password_label">Confirm Password</string>
+    <string name="confirm_password_placeholder">Confirm your password</string>
+    <string name="register_button">Create Account</string>
 </resources>
