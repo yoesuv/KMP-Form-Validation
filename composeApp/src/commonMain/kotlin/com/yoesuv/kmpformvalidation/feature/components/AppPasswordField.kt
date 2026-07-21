@@ -19,6 +19,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -39,6 +41,7 @@ import androidx.compose.ui.unit.dp
  * @param errorMessage Error message to display when isError is true
  * @param enabled Whether the field is enabled for input
  * @param imeAction IME action for the keyboard
+ * @param focusRequester Optional FocusRequester for programmatic focus control
  * @param keyboardActions Actions to perform on keyboard events
  */
 @Composable
@@ -53,10 +56,11 @@ fun AppPasswordField(
     errorMessage: String? = null,
     enabled: Boolean = true,
     imeAction: ImeAction = ImeAction.Done,
+    focusRequester: FocusRequester? = null,
     keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
-    
+
     Column(
         modifier = modifier
     ) {
@@ -97,9 +101,11 @@ fun AppPasswordField(
                 imeAction = imeAction
             ),
             keyboardActions = keyboardActions,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
         )
-        
+
         // Error message display
         if (isError && !errorMessage.isNullOrBlank()) {
             Text(
