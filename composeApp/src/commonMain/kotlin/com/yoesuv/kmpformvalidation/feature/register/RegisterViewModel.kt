@@ -126,20 +126,21 @@ class RegisterViewModel : ViewModel() {
     /**
      * Update password value and validate it
      */
-    fun updatePassword(newPassword: String, passwordRequiredMessage: String, passwordTooShortMessage: String) {
+    fun updatePassword(
+        newPassword: String,
+        passwordRequiredMessage: String,
+        passwordTooShortMessage: String,
+        confirmPasswordRequiredMessage: String,
+        passwordsDoNotMatchMessage: String
+    ) {
         _password.value = newPassword
         _passwordValidation.value = newPassword.validatePassword(passwordRequiredMessage, passwordTooShortMessage)
-        // Show error only if user has started typing and field is not empty
         _showPasswordError.value = newPassword.isNotEmpty() && !_passwordValidation.value.isValid
-        
-        // Re-validate confirm password when password changes
         if (_confirmPassword.value.isNotEmpty()) {
-            val confirmPasswordRequiredMessage = "Confirm password is required" // This will be passed from UI
-            val passwordsDoNotMatchMessage = "Passwords do not match" // This will be passed from UI
             _confirmPasswordValidation.value = _confirmPassword.value.validateConfirmPassword(
                 newPassword, confirmPasswordRequiredMessage, passwordsDoNotMatchMessage
             )
-            _showConfirmPasswordError.value = _confirmPassword.value.isNotEmpty() && !_confirmPasswordValidation.value.isValid
+            _showConfirmPasswordError.value = !_confirmPasswordValidation.value.isValid
         }
     }
     
@@ -172,7 +173,7 @@ class RegisterViewModel : ViewModel() {
         // Validate all fields first
         updateFullName(_fullName.value, fullNameRequiredMessage, fullNameTooShortMessage)
         updateEmail(_email.value, emailRequiredMessage, emailInvalidMessage)
-        updatePassword(_password.value, passwordRequiredMessage, passwordTooShortMessage)
+        updatePassword(_password.value, passwordRequiredMessage, passwordTooShortMessage, confirmPasswordRequiredMessage, passwordsDoNotMatchMessage)
         updateConfirmPassword(_confirmPassword.value, confirmPasswordRequiredMessage, passwordsDoNotMatchMessage)
         
         // Show all errors if fields are empty

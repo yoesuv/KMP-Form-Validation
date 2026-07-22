@@ -132,7 +132,7 @@ fun RegisterScreen(
             AppPasswordField(
                 value = password,
                 onValueChange = { 
-                    viewModel.updatePassword(it, passwordRequiredMessage, passwordTooShortMessage)
+                    viewModel.updatePassword(it, passwordRequiredMessage, passwordTooShortMessage, confirmPasswordRequiredMessage, passwordsDoNotMatchMessage)
                 },
                 label = stringResource(Res.string.password_label),
                 placeholder = stringResource(Res.string.password_placeholder),
