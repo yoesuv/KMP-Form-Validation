@@ -70,8 +70,6 @@ fun LoginScreen(
     val password by viewModel.password.collectAsState()
     val emailError by viewModel.emailError.collectAsState()
     val passwordError by viewModel.passwordError.collectAsState()
-    val showEmailError by viewModel.showEmailError.collectAsState()
-    val showPasswordError by viewModel.showPasswordError.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val isFormValid by viewModel.isFormValid.collectAsState()
 
@@ -113,7 +111,7 @@ fun LoginScreen(
                     label = stringResource(Res.string.email_label),
                     placeholder = stringResource(Res.string.email_placeholder),
                     keyboardType = KeyboardType.Email,
-                    isError = showEmailError,
+                    isError = emailError != null,
                     errorMessage = emailError,
                     focusRequester = emailFocus,
                     keyboardActions = KeyboardActions(onNext = { passwordFocus.requestFocus() })
@@ -131,7 +129,7 @@ fun LoginScreen(
                     },
                     label = stringResource(Res.string.password_label),
                     placeholder = stringResource(Res.string.password_placeholder),
-                    isError = showPasswordError,
+                    isError = passwordError != null,
                     errorMessage = passwordError,
                     focusRequester = passwordFocus,
                     keyboardActions = KeyboardActions(onDone = {

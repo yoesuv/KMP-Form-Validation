@@ -33,14 +33,6 @@ class LoginViewModel(
     private val _password = MutableStateFlow("")
     val password: StateFlow<String> = _password.asStateFlow()
 
-    // Show email error state
-    private val _showEmailError = MutableStateFlow(false)
-    val showEmailError: StateFlow<Boolean> = _showEmailError.asStateFlow()
-
-    // Show password error state
-    private val _showPasswordError = MutableStateFlow(false)
-    val showPasswordError: StateFlow<Boolean> = _showPasswordError.asStateFlow()
-
     // Loading state for login button
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
@@ -53,13 +45,17 @@ class LoginViewModel(
         validation(LoginSchema(e, p))
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), validation(LoginSchema("", "")))
 
-    val emailError: StateFlow<String?> = combine(loginState, _showEmailError) { result, show ->
-        if (show) result.errors.messagesAtPath(LoginSchema::email).firstOrNull() else null
+    val emailError: StateFlow<String?> = combine(loginState, _email) { result, email ->
+        if (email.isNotEmpty()) {
+            result.errors.messagesAtPath(LoginSchema::email).firstOrNull()
+        } else null
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     val passwordError: StateFlow<String?> =
-        combine(loginState, _showPasswordError) { result, show ->
-            if (show) result.errors.messagesAtPath(LoginSchema::password).firstOrNull() else null
+        combine(loginState, _password) { result, password ->
+            if (password.isNotEmpty()) {
+                result.errors.messagesAtPath(LoginSchema::password).firstOrNull()
+            } else null
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     val isFormValid: StateFlow<Boolean> = loginState
@@ -68,19 +64,10 @@ class LoginViewModel(
 
     fun updateEmail(newEmail: String) {
         _email.value = newEmail
-        _showEmailError.value =
-            newEmail.isNotEmpty() && loginState.value.errors.messagesAtPath(LoginSchema::email)
-                .isNotEmpty()
     }
 
-    fun updatePassword(
-        newPassword: String,
-    ) {
+    fun updatePassword(newPassword: String) {
         _password.value = newPassword
-        _showPasswordError.value =
-            newPassword.isNotEmpty() && loginState.value.errors.messagesAtPath(
-                LoginSchema::password
-            ).isNotEmpty()
     }
 
     fun login(
@@ -99,8 +86,6 @@ class LoginViewModel(
     fun clearForm() {
         _email.value = ""
         _password.value = ""
-        _showEmailError.value = false
-        _showPasswordError.value = false
         _isLoading.value = false
     }
 }
