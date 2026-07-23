@@ -8,122 +8,97 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.SharingStarted
-import com.yoesuv.kmpformvalidation.utils.validation.ValidationModel
-import com.yoesuv.kmpformvalidation.utils.validation.validateEmail
-import com.yoesuv.kmpformvalidation.utils.validation.validatePassword
+import io.konform.validation.Validation
+import io.konform.validation.ValidationResult
+import io.konform.validation.Valid
+import io.konform.validation.messagesAtPath
+import kotlinx.coroutines.flow.map
 
 /**
  * ViewModel for Login Screen
  * Manages login form state and validation logic
  */
-class LoginViewModel : ViewModel() {
-    
+class LoginViewModel(
+    emailRequired: String,
+    emailInvalid: String,
+    passwordRequired: String,
+    passwordTooShort: String,
+) : ViewModel() {
+
     // Email state
     private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email.asStateFlow()
-    
+
     // Password state
     private val _password = MutableStateFlow("")
     val password: StateFlow<String> = _password.asStateFlow()
-    
-    // Email validation state
-    private val _emailValidation = MutableStateFlow(ValidationModel(true, ""))
-    val emailValidation: StateFlow<ValidationModel> = _emailValidation.asStateFlow()
-    
-    // Password validation state
-    private val _passwordValidation = MutableStateFlow(ValidationModel(true, ""))
-    val passwordValidation: StateFlow<ValidationModel> = _passwordValidation.asStateFlow()
-    
+
     // Show email error state
     private val _showEmailError = MutableStateFlow(false)
     val showEmailError: StateFlow<Boolean> = _showEmailError.asStateFlow()
-    
+
     // Show password error state
     private val _showPasswordError = MutableStateFlow(false)
     val showPasswordError: StateFlow<Boolean> = _showPasswordError.asStateFlow()
-    
+
     // Loading state for login button
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-    
-    // Computed property to check if form is valid (both email and password are valid and not empty)
-    val isFormValid: StateFlow<Boolean> = combine(
-        _email,
-        _password,
-        _emailValidation,
-        _passwordValidation
-    ) { email, password, emailValidation, passwordValidation ->
-        email.isNotEmpty() && 
-        password.isNotEmpty() && 
-        emailValidation.isValid && 
-        passwordValidation.isValid
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = false
+
+    private val validation: Validation<LoginSchema> = loginValidation(
+        emailRequired, emailInvalid, passwordRequired, passwordTooShort
     )
-    
-    /**
-     * Update email value and validate it
-     */
-    fun updateEmail(newEmail: String, emailRequiredMessage: String, emailInvalidMessage: String) {
+
+    val loginState: StateFlow<ValidationResult<LoginSchema>> = combine(_email, _password) { e, p ->
+        validation(LoginSchema(e, p))
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), validation(LoginSchema("", "")))
+
+    val emailError: StateFlow<String?> = combine(loginState, _showEmailError) { result, show ->
+        if (show) result.errors.messagesAtPath(LoginSchema::email).firstOrNull() else null
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    val passwordError: StateFlow<String?> =
+        combine(loginState, _showPasswordError) { result, show ->
+            if (show) result.errors.messagesAtPath(LoginSchema::password).firstOrNull() else null
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    val isFormValid: StateFlow<Boolean> = loginState
+        .map { it is Valid<LoginSchema> }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+
+    fun updateEmail(newEmail: String) {
         _email.value = newEmail
-        _emailValidation.value = newEmail.validateEmail(emailRequiredMessage, emailInvalidMessage)
-        // Show error only if user has started typing and field is not empty
-        _showEmailError.value = newEmail.isNotEmpty() && !_emailValidation.value.isValid
+        _showEmailError.value =
+            newEmail.isNotEmpty() && loginState.value.errors.messagesAtPath(LoginSchema::email)
+                .isNotEmpty()
     }
-    
-    /**
-     * Update password value and validate it
-     */
-    fun updatePassword(newPassword: String, passwordRequiredMessage: String, passwordTooShortMessage: String) {
-        _password.value = newPassword
-        _passwordValidation.value = newPassword.validatePassword(passwordRequiredMessage, passwordTooShortMessage)
-        // Show error only if user has started typing and field is not empty
-        _showPasswordError.value = newPassword.isNotEmpty() && !_passwordValidation.value.isValid
-    }
-    
-    /**
-     * Perform login action
-     * This method will be expanded later with actual login logic
-     */
-    fun login(
-        emailRequiredMessage: String, 
-        emailInvalidMessage: String,
-        passwordRequiredMessage: String,
-        passwordTooShortMessage: String
+
+    fun updatePassword(
+        newPassword: String,
     ) {
-        // Validate email before proceeding
-        val currentEmailValidation = _email.value.validateEmail(emailRequiredMessage, emailInvalidMessage)
-        _emailValidation.value = currentEmailValidation
-        _showEmailError.value = !currentEmailValidation.isValid
-        
-        // Validate password before proceeding
-        val currentPasswordValidation = _password.value.validatePassword(passwordRequiredMessage, passwordTooShortMessage)
-        _passwordValidation.value = currentPasswordValidation
-        _showPasswordError.value = !currentPasswordValidation.isValid
-        
-        // If both validations pass, proceed with login
-        if (currentEmailValidation.isValid && currentPasswordValidation.isValid) {
+        _password.value = newPassword
+        _showPasswordError.value =
+            newPassword.isNotEmpty() && loginState.value.errors.messagesAtPath(
+                LoginSchema::password
+            ).isNotEmpty()
+    }
+
+    fun login(
+    ) {
+        if (loginState.value is Valid<LoginSchema>) {
             _isLoading.value = true
-            
-            // TODO: Implement actual login logic here
-            // For now, just simulate loading
-            // In the future, this will call authentication service
-            
-            // Reset loading state (temporary)
+            // TODO actual login
             _isLoading.value = false
         }
+
     }
-    
+
     /**
      * Clear all form data
      */
     fun clearForm() {
         _email.value = ""
         _password.value = ""
-        _emailValidation.value = ValidationModel(true, "")
-        _passwordValidation.value = ValidationModel(true, "")
         _showEmailError.value = false
         _showPasswordError.value = false
         _isLoading.value = false

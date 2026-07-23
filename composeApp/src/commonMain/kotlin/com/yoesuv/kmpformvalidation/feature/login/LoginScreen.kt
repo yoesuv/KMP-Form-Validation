@@ -51,22 +51,29 @@ import org.jetbrains.compose.resources.stringResource
 fun LoginScreen(
     onNavigateToRegister: () -> Unit = {},
 ) {
-    val viewModel = viewModel { LoginViewModel() }
-    // Collect state from ViewModel
-    val email by viewModel.email.collectAsState()
-    val password by viewModel.password.collectAsState()
-    val emailValidation by viewModel.emailValidation.collectAsState()
-    val passwordValidation by viewModel.passwordValidation.collectAsState()
-    val showEmailError by viewModel.showEmailError.collectAsState()
-    val showPasswordError by viewModel.showPasswordError.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
-    val isFormValid by viewModel.isFormValid.collectAsState()
-
     // Get string resources once in the Composable context
     val emailRequiredMessage = stringResource(Res.string.email_required)
     val emailInvalidMessage = stringResource(Res.string.email_invalid_format)
     val passwordRequiredMessage = stringResource(Res.string.password_required)
     val passwordTooShortMessage = stringResource(Res.string.password_too_short)
+
+    val viewModel = viewModel {
+        LoginViewModel(
+            emailRequiredMessage,
+            emailInvalidMessage,
+            passwordRequiredMessage,
+            passwordTooShortMessage
+        )
+    }
+    // Collect state from ViewModel
+    val email by viewModel.email.collectAsState()
+    val password by viewModel.password.collectAsState()
+    val emailError by viewModel.emailError.collectAsState()
+    val passwordError by viewModel.passwordError.collectAsState()
+    val showEmailError by viewModel.showEmailError.collectAsState()
+    val showPasswordError by viewModel.showPasswordError.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val isFormValid by viewModel.isFormValid.collectAsState()
 
     // Focus requesters for keyboard navigation
     val (emailFocus, passwordFocus) = remember { FocusRequester.createRefs() }
@@ -101,13 +108,13 @@ fun LoginScreen(
                 AppTextField(
                     value = email,
                     onValueChange = { newEmail ->
-                        viewModel.updateEmail(newEmail, emailRequiredMessage, emailInvalidMessage)
+                        viewModel.updateEmail(newEmail)
                     },
                     label = stringResource(Res.string.email_label),
                     placeholder = stringResource(Res.string.email_placeholder),
                     keyboardType = KeyboardType.Email,
                     isError = showEmailError,
-                    errorMessage = if (showEmailError) emailValidation.message else null,
+                    errorMessage = emailError,
                     focusRequester = emailFocus,
                     keyboardActions = KeyboardActions(onNext = { passwordFocus.requestFocus() })
                 )
@@ -118,21 +125,18 @@ fun LoginScreen(
                 AppPasswordField(
                     value = password,
                     onValueChange = { newPassword ->
-                        viewModel.updatePassword(newPassword, passwordRequiredMessage, passwordTooShortMessage)
+                        viewModel.updatePassword(
+                            newPassword
+                        )
                     },
                     label = stringResource(Res.string.password_label),
                     placeholder = stringResource(Res.string.password_placeholder),
                     isError = showPasswordError,
-                    errorMessage = if (showPasswordError) passwordValidation.message else null,
+                    errorMessage = passwordError,
                     focusRequester = passwordFocus,
                     keyboardActions = KeyboardActions(onDone = {
                         if (isFormValid && !isLoading) {
-                            viewModel.login(
-                                emailRequiredMessage,
-                                emailInvalidMessage,
-                                passwordRequiredMessage,
-                                passwordTooShortMessage
-                            )
+                            viewModel.login()
                         }
                     })
                 )
@@ -143,7 +147,7 @@ fun LoginScreen(
                 AppButton(
                     text = stringResource(Res.string.login_button),
                     onClick = {
-                        viewModel.login(emailRequiredMessage, emailInvalidMessage, passwordRequiredMessage, passwordTooShortMessage)
+                        viewModel.login()
                     },
                     fillMaxWidth = true,
                     isLoading = isLoading,

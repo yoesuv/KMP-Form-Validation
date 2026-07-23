@@ -5,7 +5,7 @@ import io.konform.validation.Validation
 import io.konform.validation.constraints.minLength
 import io.konform.validation.constraints.notBlank
 
-data class Login(
+data class LoginSchema(
     val email: String,
     val password: String
 )
@@ -15,12 +15,12 @@ fun loginValidation(
     emailInvalid: String,
     passwordRequired: String,
     passwordTooShort: String,
-): Validation<Login> = Validation {
-    Login::email {
+): Validation<LoginSchema> = Validation {
+    LoginSchema::email {
         notBlank() hint emailRequired
         constrain(emailInvalid) { it.isValidEmailFormat() }
     }
-    Login::password {
+    LoginSchema::password {
         notBlank() hint passwordRequired
         minLength(5) hint passwordTooShort
     }
