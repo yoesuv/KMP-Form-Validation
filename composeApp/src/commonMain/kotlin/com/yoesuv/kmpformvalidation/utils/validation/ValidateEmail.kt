@@ -1,7 +1,6 @@
 package com.yoesuv.kmpformvalidation.utils.validation
 
 import androidx.compose.runtime.Composable
-import kotlin.text.Regex
 import org.jetbrains.compose.resources.stringResource
 import kmpformvalidation.composeapp.generated.resources.Res
 import kmpformvalidation.composeapp.generated.resources.email_required
@@ -68,15 +67,4 @@ fun String.validateEmailComposable(): ValidationModel {
         emailRequiredMessage = stringResource(Res.string.email_required),
         emailInvalidMessage = stringResource(Res.string.email_invalid_format)
     )
-}
-
-/**
- * Helper function to check email format using regex
- * @return true if email format is valid, false otherwise
- */
-private fun String.isValidEmailFormat(): Boolean {
-    val emailRegex = Regex(
-        pattern = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
-    )
-    return emailRegex.matches(this)
 }

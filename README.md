@@ -16,6 +16,7 @@ A Kotlin Multiplatform form validation sample app with Login and Register screen
 
 #### List Library
 
+- [Konform](https://github.com/konform-kt/konform)
 - [KotlinX Serialization](https://github.com/Kotlin/kotlinx.serialization)
 - [Navigation](https://mvnrepository.com/artifact/org.jetbrains.androidx.navigation/navigation-compose)
 - [Material Icons](https://mvnrepository.com/artifact/org.jetbrains.compose.material/material-icons-extended)
