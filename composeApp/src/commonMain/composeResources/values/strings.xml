@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Shared Components -->
+    <string name="show_password">Show password</string>
+    <string name="hide_password">Hide password</string>
+
     <!-- Login Screen -->
     <string name="login_title">Login</string>
     <string name="email_label">Email</string>

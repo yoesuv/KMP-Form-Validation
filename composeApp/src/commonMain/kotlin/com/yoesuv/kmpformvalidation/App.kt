@@ -9,10 +9,8 @@ import com.yoesuv.kmpformvalidation.core.route.AppRoute
 import com.yoesuv.kmpformvalidation.core.theme.AppColor
 import com.yoesuv.kmpformvalidation.feature.login.LoginScreen
 import com.yoesuv.kmpformvalidation.feature.register.RegisterScreen
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
-@Preview
 fun App() {
     MaterialTheme(
         colorScheme = MaterialTheme.colorScheme.copy(

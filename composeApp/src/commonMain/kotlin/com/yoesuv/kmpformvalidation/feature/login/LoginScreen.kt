@@ -7,8 +7,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -16,8 +20,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -45,28 +51,33 @@ import org.jetbrains.compose.resources.stringResource
 fun LoginScreen(
     onNavigateToRegister: () -> Unit = {},
 ) {
-    val viewModel = viewModel { LoginViewModel() }
+    // Get string resources once in the Composable context
+    val messages = LoginMessages(
+        emailRequired = stringResource(Res.string.email_required),
+        emailInvalid = stringResource(Res.string.email_invalid_format),
+        passwordRequired = stringResource(Res.string.password_required),
+        passwordTooShort = stringResource(Res.string.password_too_short),
+    )
+
+    val viewModel = viewModel { LoginViewModel(messages) }
     // Collect state from ViewModel
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
-    val emailValidation by viewModel.emailValidation.collectAsState()
-    val passwordValidation by viewModel.passwordValidation.collectAsState()
-    val showEmailError by viewModel.showEmailError.collectAsState()
-    val showPasswordError by viewModel.showPasswordError.collectAsState()
+    val emailError by viewModel.emailError.collectAsState()
+    val passwordError by viewModel.passwordError.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val isFormValid by viewModel.isFormValid.collectAsState()
 
-    // Get string resources once in the Composable context
-    val emailRequiredMessage = stringResource(Res.string.email_required)
-    val emailInvalidMessage = stringResource(Res.string.email_invalid_format)
-    val passwordRequiredMessage = stringResource(Res.string.password_required)
-    val passwordTooShortMessage = stringResource(Res.string.password_too_short)
+    // Focus requesters for keyboard navigation
+    val (emailFocus, passwordFocus) = remember { FocusRequester.createRefs() }
 
     Scaffold { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues),
+                .padding(paddingValues)
+                .imePadding()
+                .verticalScroll(rememberScrollState()),
             contentAlignment = Alignment.Center
         ) {
             Column(
@@ -90,13 +101,15 @@ fun LoginScreen(
                 AppTextField(
                     value = email,
                     onValueChange = { newEmail ->
-                        viewModel.updateEmail(newEmail, emailRequiredMessage, emailInvalidMessage)
+                        viewModel.updateEmail(newEmail)
                     },
                     label = stringResource(Res.string.email_label),
                     placeholder = stringResource(Res.string.email_placeholder),
                     keyboardType = KeyboardType.Email,
-                    isError = showEmailError,
-                    errorMessage = if (showEmailError) emailValidation.message else null
+                    isError = emailError != null,
+                    errorMessage = emailError,
+                    focusRequester = emailFocus,
+                    keyboardActions = KeyboardActions(onNext = { passwordFocus.requestFocus() })
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -105,12 +118,20 @@ fun LoginScreen(
                 AppPasswordField(
                     value = password,
                     onValueChange = { newPassword ->
-                        viewModel.updatePassword(newPassword, passwordRequiredMessage, passwordTooShortMessage)
+                        viewModel.updatePassword(
+                            newPassword
+                        )
                     },
                     label = stringResource(Res.string.password_label),
                     placeholder = stringResource(Res.string.password_placeholder),
-                    isError = showPasswordError,
-                    errorMessage = if (showPasswordError) passwordValidation.message else null
+                    isError = passwordError != null,
+                    errorMessage = passwordError,
+                    focusRequester = passwordFocus,
+                    keyboardActions = KeyboardActions(onDone = {
+                        if (isFormValid && !isLoading) {
+                            viewModel.login()
+                        }
+                    })
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
@@ -119,7 +140,7 @@ fun LoginScreen(
                 AppButton(
                     text = stringResource(Res.string.login_button),
                     onClick = {
-                        viewModel.login(emailRequiredMessage, emailInvalidMessage, passwordRequiredMessage, passwordTooShortMessage)
+                        viewModel.login()
                     },
                     fillMaxWidth = true,
                     isLoading = isLoading,

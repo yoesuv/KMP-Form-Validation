@@ -10,7 +10,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
@@ -36,6 +37,7 @@ import androidx.compose.ui.unit.dp
  * @param keyboardType Type of keyboard to show
  * @param imeAction IME action for the keyboard
  * @param visualTransformation Visual transformation (e.g., password masking)
+ * @param focusRequester Optional FocusRequester for programmatic focus control
  * @param keyboardActions Actions to perform on keyboard events
  */
 @Composable
@@ -56,6 +58,7 @@ fun AppTextField(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Next,
     visualTransformation: VisualTransformation = VisualTransformation.None,
+    focusRequester: FocusRequester? = null,
     keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
     Column(
@@ -79,7 +82,9 @@ fun AppTextField(
             ),
             keyboardActions = keyboardActions,
             visualTransformation = visualTransformation,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
         )
         
         // Error message display
