@@ -19,10 +19,7 @@ import kotlinx.coroutines.flow.map
  * Manages login form state and validation logic
  */
 class LoginViewModel(
-    emailRequired: String,
-    emailInvalid: String,
-    passwordRequired: String,
-    passwordTooShort: String,
+    private val messages: LoginMessages,
 ) : ViewModel() {
 
     // Email state
@@ -37,9 +34,7 @@ class LoginViewModel(
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    private val validation: Validation<LoginSchema> = loginValidation(
-        emailRequired, emailInvalid, passwordRequired, passwordTooShort
-    )
+    private val validation: Validation<LoginSchema> = loginValidation(messages)
 
     val loginState: StateFlow<ValidationResult<LoginSchema>> = combine(_email, _password) { e, p ->
         validation(LoginSchema(e, p))
@@ -70,14 +65,14 @@ class LoginViewModel(
         _password.value = newPassword
     }
 
-    fun login(
-    ) {
-        if (loginState.value is Valid<LoginSchema>) {
+    fun login() {
+        val result = validation(LoginSchema(_email.value, _password.value))
+        println("LoginViewModel # login ${result.isValid}")
+        if (result is Valid<LoginSchema>) {
             _isLoading.value = true
             // TODO actual login
             _isLoading.value = false
         }
-
     }
 
     /**

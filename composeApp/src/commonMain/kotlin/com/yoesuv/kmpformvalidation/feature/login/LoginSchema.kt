@@ -10,18 +10,13 @@ data class LoginSchema(
     val password: String
 )
 
-fun loginValidation(
-    emailRequired: String,
-    emailInvalid: String,
-    passwordRequired: String,
-    passwordTooShort: String,
-): Validation<LoginSchema> = Validation {
+fun loginValidation(messages: LoginMessages): Validation<LoginSchema> = Validation {
     LoginSchema::email {
-        notBlank() hint emailRequired
-        constrain(emailInvalid) { it.isValidEmailFormat() }
+        notBlank() hint messages.emailRequired
+        constrain(messages.emailInvalid) { it.trim().isValidEmailFormat() }
     }
     LoginSchema::password {
-        notBlank() hint passwordRequired
-        minLength(5) hint passwordTooShort
+        notBlank() hint messages.passwordRequired
+        minLength(5) hint messages.passwordTooShort
     }
 }

@@ -52,19 +52,14 @@ fun LoginScreen(
     onNavigateToRegister: () -> Unit = {},
 ) {
     // Get string resources once in the Composable context
-    val emailRequiredMessage = stringResource(Res.string.email_required)
-    val emailInvalidMessage = stringResource(Res.string.email_invalid_format)
-    val passwordRequiredMessage = stringResource(Res.string.password_required)
-    val passwordTooShortMessage = stringResource(Res.string.password_too_short)
+    val messages = LoginMessages(
+        emailRequired = stringResource(Res.string.email_required),
+        emailInvalid = stringResource(Res.string.email_invalid_format),
+        passwordRequired = stringResource(Res.string.password_required),
+        passwordTooShort = stringResource(Res.string.password_too_short),
+    )
 
-    val viewModel = viewModel {
-        LoginViewModel(
-            emailRequiredMessage,
-            emailInvalidMessage,
-            passwordRequiredMessage,
-            passwordTooShortMessage
-        )
-    }
+    val viewModel = viewModel { LoginViewModel(messages) }
     // Collect state from ViewModel
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()

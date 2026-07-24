@@ -26,6 +26,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import kmpformvalidation.composeapp.generated.resources.Res
+import kmpformvalidation.composeapp.generated.resources.hide_password
+import kmpformvalidation.composeapp.generated.resources.show_password
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Reusable password field component with visibility toggle
@@ -80,11 +84,10 @@ fun AppPasswordField(
                         } else {
                             Icons.Filled.Visibility
                         },
-                        contentDescription = if (passwordVisible) {
-                            "Hide password"
-                        } else {
-                            "Show password"
-                        }
+                        contentDescription = stringResource(
+                            if (passwordVisible) Res.string.hide_password
+                            else Res.string.show_password
+                        )
                     )
                 }
             },
